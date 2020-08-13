@@ -8,10 +8,17 @@ RUN apt-get update && apt-get install -y \
     git \
     wget
 
+# GET the nginx project
+WORKDIR /home
+RUN wget https://nginx.org/download/nginx-1.17.9.tar.gz
+RUN tar zxf nginx-1.17.9.tar.gz
+RUN rm nginx-1.17.9.tar.gz
 
 # GET pcre library
 WORKDIR /home
-COPY pcre-8.44/ pcre-8.44/
+RUN wget ftp://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
+RUN tar -zxf pcre-8.44.tar.gz
+RUN rm pcre-8.44.tar.gz
 
 # INSTALL pcre library
 WORKDIR /home/pcre-8.44
@@ -19,10 +26,11 @@ RUN ./configure
 RUN make
 RUN make install
 
-
 # GET zlib library
 WORKDIR /home
-COPY zlib-1.2.11/ zlib-1.2.11/
+RUN wget http://zlib.net/zlib-1.2.11.tar.gz
+RUN tar -zxf zlib-1.2.11.tar.gz
+RUN rm zlib-1.2.11.tar.gz
 
 # INSTALL zlib library
 WORKDIR /home/zlib-1.2.11
@@ -30,7 +38,7 @@ RUN ./configure
 RUN make
 RUN make install
 
-# # GET openssl library
+# GET openssl library
 WORKDIR /home
 RUN git clone -b OpenSSL_1_1_1-stable https://github.com/openssl/openssl.git
 
@@ -40,21 +48,4 @@ RUN ./config
 RUN make
 RUN make install
 
-
-# GET the nginx project
-WORKDIR /home
-COPY nginx-1.19.0/ nginx-1.19.0/
-
-WORKDIR /home/nginx-1.19.0
-RUN ./configure \
-  --sbin-path=/usr/local/sbin/nginx \
-  --with-pcre=../pcre-8.44 \
-  --with-zlib=../zlib-1.2.11 \
-  --with-http_ssl_module \
-  --with-stream \
-  --with-mail=dynamic \
-  --add-module=../nginx-module-crawler
-RUN make
-RUN make install
-
-WORKDIR /home/nginx-1.19
+WORKDIR /home/nginx-1.17.9

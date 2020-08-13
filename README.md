@@ -1,6 +1,11 @@
 
 
 ```sh
+cp -R /home/romain/programs/nginx/nginx-1.19.0 .
+cp -R /home/romain/programs/pcre/pcre-8.44 .
+cp -R /home/romain/programs/zlib/zlib-1.2.11 .
+cp -R /home/romain/perso/nginx/nginx-module-crawler .
+
 docker build . --tag docker-nginx
 
 # Start the container
