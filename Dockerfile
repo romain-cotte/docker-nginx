@@ -1,11 +1,15 @@
 FROM ubuntu:18.04
 
 RUN apt-get update && apt-get install -y \
+    autoconf \
     build-essential \
     checkinstall \
     g++ \
     gcc \
     git \
+    libxml2 \
+    libtool \
+    m4 \
     wget
 
 
@@ -41,6 +45,20 @@ RUN make
 RUN make install
 
 
+WORKDIR /home
+RUN git clone https://github.com/curl/curl.git
+
+WORKDIR /home/curl
+RUN ./buildconf
+RUN ./configure
+RUN make
+RUN make install
+
+# GET the nginx module crawler
+WORKDIR /home
+COPY nginx-module-crawler/ nginx-module-crawler/
+
+
 # GET the nginx project
 WORKDIR /home
 COPY nginx-1.19.0/ nginx-1.19.0/
@@ -57,4 +75,4 @@ RUN ./configure \
 RUN make
 RUN make install
 
-WORKDIR /home/nginx-1.19
+WORKDIR /home/nginx-1.19.0
