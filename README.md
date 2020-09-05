@@ -13,20 +13,14 @@ cp /home/romain/perso/nginx/nginx-module-crawler/conf/nginx.conf .
 docker build . --tag docker-nginx
 
 # Start the container
+export PORT=80
 docker run \
   --rm \
-  --interactive \
-  --name docker-nginx \
-  --publish 8088:80 \
-  docker-nginx
-
-docker run \
-  --rm \
-  --interactive \
   --name docker-nginx \
   --publish 8088:$PORT \
+  --env PORT=$PORT \
+  --detach \
   docker-nginx
-
 
 
 # Inside it:
@@ -52,4 +46,6 @@ envsubst '\$PORT' < nginx.conf.template > nginx.conf
 # CMD /bin/bash -c "envsubst '\$PORT' < nginx.conf.template > nginx.conf" && nginx -g 'daemon off;'
 
 
+heroku container:push web -a rc-nginx-test
+heroku container:release web -a rc-nginx-test
 ```

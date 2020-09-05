@@ -1,5 +1,5 @@
-FROM ubuntu:18.04
-
+# FROM ubuntu:18.04
+FROM heroku/heroku:18
 
 ENV NGINX_VER 1.19.2
 ENV PCRE_VER 8.44
@@ -69,6 +69,7 @@ COPY nginx-module-crawler/ nginx-module-crawler/
 
 # GET the nginx project
 WORKDIR /home
+
 COPY nginx-${NGINX_VER}/ nginx-${NGINX_VER}/
 
 WORKDIR /home/nginx-${NGINX_VER}
@@ -90,8 +91,11 @@ COPY nginx.conf.template configuration
 
 RUN ldconfig
 
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /usr/local/nginx/logs/access.log \
+  && ln -sf /dev/stderr /usr/local/nginx/logs/error.log
+
 EXPOSE 80
-# ENTRYPOINT /usr/local/sbin/nginx
 
 CMD /bin/bash -c \
   "envsubst '\$PORT' < /home/nginx-${NGINX_VER}/configuration/nginx.conf.template > /home/nginx-${NGINX_VER}/configuration/nginx.conf" && \
