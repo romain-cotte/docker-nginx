@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 
-ENV NGINX_VER 1.19.0
+ENV NGINX_VER 1.19.2
 ENV PCRE_VER 8.44
 ENV ZLIB_VER 1.2.11
 
@@ -11,10 +11,11 @@ RUN apt-get update && apt-get install -y \
     checkinstall \
     g++ \
     gcc \
+    gettext-base \
     git \
+    libtool \
     libxml2 \
     libxml2-dev \
-    libtool \
     m4 \
     wget
 
@@ -56,6 +57,7 @@ RUN git clone https://github.com/curl/curl.git
 
 WORKDIR /home/curl
 RUN ./buildconf
+# RUN autoreconf -fi
 RUN ./configure
 RUN make
 RUN make install
@@ -72,7 +74,7 @@ COPY nginx-${NGINX_VER}/ nginx-${NGINX_VER}/
 WORKDIR /home/nginx-${NGINX_VER}
 RUN ./configure \
   --sbin-path=/usr/local/sbin/nginx \
-  --conf-path=/home/nginx-${NGINX_VER}/conf/nginx.conf \
+  --conf-path=/home/nginx-${NGINX_VER}/configuration/nginx.conf \
   --with-pcre=../pcre-${PCRE_VER} \
   --with-zlib=../zlib-${ZLIB_VER} \
   --with-http_ssl_module \
@@ -84,9 +86,13 @@ RUN make install
 
 WORKDIR /home/nginx-${NGINX_VER}
 
+COPY nginx.conf.template configuration
+
 RUN ldconfig
 
 EXPOSE 80
 # ENTRYPOINT /usr/local/sbin/nginx
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD /bin/bash -c \
+  "envsubst '\$PORT' < /home/nginx-${NGINX_VER}/configuration/nginx.conf.template > /home/nginx-${NGINX_VER}/configuration/nginx.conf" && \
+  nginx -g 'daemon off;'
